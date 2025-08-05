@@ -15,6 +15,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "check-all": "yarn typecheck && yarn lint && yarn format:check",
+    "pre-commit-check": "yarn typecheck && yarn lint",
     "prepare": "husky"
   },
   "dependencies": {
