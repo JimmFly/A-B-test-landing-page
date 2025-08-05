@@ -1,6 +1,13 @@
 import Cookies from 'js-cookie';
-import { COOKIE_CONFIG } from './security-config';
 import { ABTestConfig } from '@/types';
+
+// Cookie configuration
+const COOKIE_CONFIG = {
+  MAX_AGE: 30 * 24 * 60 * 60, // 30 days in seconds
+  SECURE: process.env.NODE_ENV === 'production',
+  SAME_SITE: 'strict' as const,
+  PATH: '/'
+};
 
 const AB_TEST_COOKIE = 'ab_test_variant';
 const SESSION_COOKIE = 'session_id';

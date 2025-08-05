@@ -3,7 +3,28 @@
  * Uses in-memory storage for simplicity (consider Redis for production)
  */
 
-import { RATE_LIMITS, getEnvironmentConfig } from './security-config';
+// Rate limit configuration
+const RATE_LIMITS = {
+  WAITLIST: {
+    MAX_REQUESTS: 5,
+    WINDOW_MS: 15 * 60 * 1000, // 15 minutes
+  },
+  ANALYTICS: {
+    MAX_REQUESTS: 20,
+    WINDOW_MS: 15 * 60 * 1000, // 15 minutes
+  },
+  GENERAL: {
+    MAX_REQUESTS: 100,
+    WINDOW_MS: 15 * 60 * 1000, // 15 minutes
+  },
+} as const;
+
+// Environment configuration
+function getEnvironmentConfig() {
+  return {
+    RATE_LIMIT_ENABLED: process.env.NODE_ENV === 'production'
+  };
+}
 
 interface RateLimitEntry {
   count: number;
