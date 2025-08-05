@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "typescript": "warn",
+    "react": "warn",
+    "jsx-a11y": "warn",
+    "import": "warn",
+    "unicorn": "warn",
+    "eslint": "warn"
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2022": true
+  },
+  "globals": {
+    "React": "readonly",
+    "JSX": "readonly"
+  },
+  "plugins": ["react", "typescript", "jsx-a11y", "import", "unicorn"],
+  "ignore_patterns": [
+    "node_modules/**",
+    ".next/**",
+    "out/**",
+    "dist/**",
+    "build/**",
+    "*.config.js",
+    "*.config.ts"
+  ]
+}
