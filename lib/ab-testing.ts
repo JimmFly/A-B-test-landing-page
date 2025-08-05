@@ -6,7 +6,7 @@ const COOKIE_CONFIG = {
   MAX_AGE: 30 * 24 * 60 * 60, // 30 days in seconds
   SECURE: process.env.NODE_ENV === 'production',
   SAME_SITE: 'strict' as const,
-  PATH: '/'
+  PATH: '/',
 };
 
 const AB_TEST_COOKIE = 'ab_test_variant';
@@ -30,7 +30,7 @@ export function getSessionId(): string {
       expires: COOKIE_CONFIG.MAX_AGE / (24 * 60 * 60), // Convert seconds to days
       secure: COOKIE_CONFIG.SECURE,
       sameSite: COOKIE_CONFIG.SAME_SITE,
-      path: COOKIE_CONFIG.PATH
+      path: COOKIE_CONFIG.PATH,
     });
   }
   return sessionId;
@@ -51,10 +51,10 @@ export function assignVariant(
   // If A/B testing is disabled, default to variant A
   if (!config.enabled) {
     const variant = 'A';
-    Cookies.set(AB_TEST_COOKIE, variant, { 
+    Cookies.set(AB_TEST_COOKIE, variant, {
       expires: 30,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict'
+      sameSite: 'strict',
     });
     return variant;
   }
@@ -64,12 +64,12 @@ export function assignVariant(
   const variant = random < config.trafficSplit.A ? 'A' : 'B';
 
   // Store variant in cookie for consistency
- Cookies.set('ab_test_variant', variant, {
-      expires: COOKIE_CONFIG.MAX_AGE / (24 * 60 * 60), // Convert seconds to days
-      secure: COOKIE_CONFIG.SECURE,
-      sameSite: COOKIE_CONFIG.SAME_SITE,
-      path: COOKIE_CONFIG.PATH
-    });
+  Cookies.set('ab_test_variant', variant, {
+    expires: COOKIE_CONFIG.MAX_AGE / (24 * 60 * 60), // Convert seconds to days
+    secure: COOKIE_CONFIG.SECURE,
+    sameSite: COOKIE_CONFIG.SAME_SITE,
+    path: COOKIE_CONFIG.PATH,
+  });
 
   return variant;
 }

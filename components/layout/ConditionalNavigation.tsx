@@ -8,13 +8,14 @@ import Navigation from './Navigation';
  */
 export default function ConditionalNavigation() {
   const pathname = usePathname();
-  
-  // Show navigation on dashboard and analytics pages
-  const showNavigation = pathname === '/dashboard' || pathname === '/analytics';
-  
+
+  // Show navigation on dashboard, analytics, and events pages
+  const showNavigation =
+    pathname === '/dashboard' || pathname === '/analytics' || pathname === '/events';
+
   if (!showNavigation) {
     return null;
   }
-  
+
   return <Navigation />;
 }

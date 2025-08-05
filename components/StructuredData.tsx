@@ -12,13 +12,9 @@ interface StructuredDataProps {
 export function StructuredData({ data }: StructuredDataProps) {
   // Sanitize and validate the structured data
   const sanitizedData = sanitizeStructuredData(data);
-  
+
   return (
-    <Script
-      id="structured-data"
-      type="application/ld+json"
-      strategy="beforeInteractive"
-    >
+    <Script id="structured-data" type="application/ld+json" strategy="beforeInteractive">
       {JSON.stringify(sanitizedData)}
     </Script>
   );
@@ -40,26 +36,24 @@ function sanitizeStructuredData(data: Record<string, any>): Record<string, any> 
     'price',
     'priceCurrency',
     'ratingValue',
-    'ratingCount'
+    'ratingCount',
   ];
 
   function sanitizeValue(value: any): any {
     if (typeof value === 'string') {
       // Remove potentially dangerous characters and limit length
-      return value
-        .replace(/[<>"'&]/g, '')
-        .substring(0, 500);
+      return value.replace(/[<>"'&]/g, '').substring(0, 500);
     }
-    
+
     if (typeof value === 'number') {
       // Ensure numbers are within reasonable bounds
       return Math.max(0, Math.min(value, 999999));
     }
-    
+
     if (Array.isArray(value)) {
       return value.slice(0, 10).map(sanitizeValue);
     }
-    
+
     if (typeof value === 'object' && value !== null) {
       const sanitized: Record<string, any> = {};
       for (const [key, val] of Object.entries(value)) {
@@ -69,7 +63,7 @@ function sanitizeStructuredData(data: Record<string, any>): Record<string, any> 
       }
       return sanitized;
     }
-    
+
     return value;
   }
 
@@ -79,7 +73,7 @@ function sanitizeStructuredData(data: Record<string, any>): Record<string, any> 
       sanitized[key] = sanitizeValue(value);
     }
   }
-  
+
   return sanitized;
 }
 

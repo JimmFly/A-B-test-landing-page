@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { BarChart3, Home, Users } from 'lucide-react';
+import { BarChart3, Home, Users, ListFilter } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 /**
@@ -15,20 +15,26 @@ export default function Navigation() {
       name: 'Home',
       href: '/',
       icon: Home,
-      current: pathname === '/'
+      current: pathname === '/',
     },
     {
       name: 'Analytics',
       href: '/analytics',
       icon: BarChart3,
-      current: pathname === '/analytics'
+      current: pathname === '/analytics',
+    },
+    {
+      name: 'Events',
+      href: '/events',
+      icon: ListFilter,
+      current: pathname === '/events',
     },
     {
       name: 'Dashboard',
       href: '/dashboard',
       icon: Users,
-      current: pathname === '/dashboard'
-    }
+      current: pathname === '/dashboard',
+    },
   ];
 
   return (
@@ -42,7 +48,7 @@ export default function Navigation() {
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              {navItems.map((item) => {
+              {navItems.map(item => {
                 const Icon = item.icon;
                 return (
                   <Link
@@ -63,11 +69,11 @@ export default function Navigation() {
           </div>
         </div>
       </div>
-      
+
       {/* Mobile menu */}
       <div className="sm:hidden">
         <div className="pt-2 pb-3 space-y-1">
-          {navItems.map((item) => {
+          {navItems.map(item => {
             const Icon = item.icon;
             return (
               <Link

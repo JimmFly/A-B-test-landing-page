@@ -26,43 +26,97 @@ class InMemoryStorage {
 
   /**
    * Get all events
+   * @param includeTestSessions Whether to include test sessions in the results
    */
-  async getEvents(): Promise<AnalyticsEvent[]> {
-    return [...this.events];
+  async getEvents(includeTestSessions: boolean = false): Promise<AnalyticsEvent[]> {
+    if (includeTestSessions) {
+      return [...this.events];
+    }
+
+    // Filter out test sessions
+    return this.events.filter(event => {
+      return !event.metadata?.isTestSession;
+    });
   }
 
   /**
    * Get all waitlist entries
+   * @param includeTestSessions Whether to include entries from test sessions
    */
-  async getWaitlistEntries(): Promise<WaitlistEntry[]> {
-    return [...this.waitlistEntries];
+  async getWaitlistEntries(includeTestSessions: boolean = false): Promise<WaitlistEntry[]> {
+    if (includeTestSessions) {
+      return [...this.waitlistEntries];
+    }
+
+    // Filter out entries from test sessions
+    return this.waitlistEntries.filter(entry => {
+      // Check if the entry has a sessionId in metadata that matches a test session
+      if (!entry.metadata?.sessionId) return true;
+
+      // Look for a matching event with this sessionId that is marked as a test session
+      const matchingEvent = this.events.find(
+        event => event.sessionId === entry.metadata?.sessionId && event.metadata?.isTestSession
+      );
+
+      return !matchingEvent;
+    });
   }
 
   /**
    * Get events by type
+   * @param type The event type to filter by
+   * @param includeTestSessions Whether to include test sessions in the results
    */
-  async getEventsByType(type: AnalyticsEvent['type']): Promise<AnalyticsEvent[]> {
-    return this.events.filter(event => event.type === type);
+  async getEventsByType(
+    type: AnalyticsEvent['type'],
+    includeTestSessions: boolean = false
+  ): Promise<AnalyticsEvent[]> {
+    return this.events.filter(event => {
+      const typeMatch = event.type === type;
+      if (includeTestSessions) {
+        return typeMatch;
+      }
+      return typeMatch && !event.metadata?.isTestSession;
+    });
   }
 
   /**
    * Get events by variant
+   * @param variant The variant to filter by
+   * @param includeTestSessions Whether to include test sessions in the results
    */
-  async getEventsByVariant(variant: 'A' | 'B'): Promise<AnalyticsEvent[]> {
-    return this.events.filter(event => event.variant === variant);
+  async getEventsByVariant(
+    variant: 'A' | 'B',
+    includeTestSessions: boolean = false
+  ): Promise<AnalyticsEvent[]> {
+    return this.events.filter(event => {
+      const variantMatch = event.variant === variant;
+      if (includeTestSessions) {
+        return variantMatch;
+      }
+      return variantMatch && !event.metadata?.isTestSession;
+    });
   }
 
   /**
    * Calculate conversion metrics
+   * @param includeTestSessions Whether to include test sessions in the metrics
    */
-  async getConversionMetrics(): Promise<{ A: ConversionMetrics; B: ConversionMetrics }> {
-    const pageViewsA = this.events.filter(e => e.type === 'page_view' && e.variant === 'A').length;
-    const pageViewsB = this.events.filter(e => e.type === 'page_view' && e.variant === 'B').length;
+  async getConversionMetrics(
+    includeTestSessions: boolean = false
+  ): Promise<{ A: ConversionMetrics; B: ConversionMetrics }> {
+    // Filter events to exclude test sessions unless explicitly included
+    const validEvents = includeTestSessions
+      ? this.events
+      : this.events.filter(e => !e.metadata?.isTestSession);
 
-    const signupsA = this.events.filter(
+    const pageViewsA = validEvents.filter(e => e.type === 'page_view' && e.variant === 'A').length;
+    const pageViewsB = validEvents.filter(e => e.type === 'page_view' && e.variant === 'B').length;
+
+    const signupsA = validEvents.filter(
       e => e.type === 'signup_success' && e.variant === 'A'
     ).length;
-    const signupsB = this.events.filter(
+    const signupsB = validEvents.filter(
       e => e.type === 'signup_success' && e.variant === 'B'
     ).length;
 
@@ -97,10 +151,22 @@ class InMemoryStorage {
 
   /**
    * Get unique sessions count
+   * @param variant Optional variant to filter by
+   * @param includeTestSessions Whether to include test sessions in the count
    */
-  async getUniqueSessionsCount(variant?: 'A' | 'B'): Promise<number> {
-    const events = variant ? this.events.filter(e => e.variant === variant) : this.events;
-    const uniqueSessions = new Set(events.map(e => e.sessionId));
+  async getUniqueSessionsCount(
+    variant?: 'A' | 'B',
+    includeTestSessions: boolean = false
+  ): Promise<number> {
+    // First filter by variant if specified
+    let filteredEvents = variant ? this.events.filter(e => e.variant === variant) : this.events;
+
+    // Then filter out test sessions if needed
+    if (!includeTestSessions) {
+      filteredEvents = filteredEvents.filter(e => !e.metadata?.isTestSession);
+    }
+
+    const uniqueSessions = new Set(filteredEvents.map(e => e.sessionId));
     return uniqueSessions.size;
   }
 }
@@ -113,7 +179,8 @@ export async function generateWaitlistEntry(
   email: string,
   variant: 'A' | 'B',
   userAgent?: string,
-  referrer?: string
+  referrer?: string,
+  metadata?: Record<string, unknown>
 ): Promise<WaitlistEntry> {
   return {
     id: `wl_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -122,5 +189,6 @@ export async function generateWaitlistEntry(
     timestamp: new Date(),
     userAgent,
     referrer,
+    metadata,
   };
 }

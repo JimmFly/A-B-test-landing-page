@@ -6,7 +6,7 @@ import { generateWaitlistEntry } from '../lib/storage';
 
 async function seedWaitlistData() {
   console.log('Seeding waitlist data...');
-  
+
   const testEntries = [
     { email: 'john.doe@example.com', variant: 'A' as const },
     { email: 'jane.smith@example.com', variant: 'B' as const },
@@ -17,7 +17,7 @@ async function seedWaitlistData() {
     { email: 'edward.norton@example.com', variant: 'A' as const },
     { email: 'fiona.apple@example.com', variant: 'B' as const },
   ];
-  
+
   for (const { email, variant } of testEntries) {
     try {
       const entry = await generateWaitlistEntry(
@@ -29,10 +29,14 @@ async function seedWaitlistData() {
       await storage.storeWaitlistEntry(entry);
       console.log(`Added: ${email} (${variant})`);
     } catch (error) {
+      // Log the error details
+      console.error(
+        `Error adding entry: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
       console.log(`Skipped: ${email} (already exists)`);
     }
   }
-  
+
   console.log('Seeding completed!');
 }
 

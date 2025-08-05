@@ -98,7 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         {/* Conditional Navigation */}
         <ConditionalNavigation />
-        
+
         {/* Main content */}
         <main id="main-content">{children}</main>
 

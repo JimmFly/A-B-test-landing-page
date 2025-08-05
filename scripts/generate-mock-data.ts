@@ -8,14 +8,67 @@ import { generateWaitlistEntry } from '../lib/storage';
  * Generate random email addresses with various domains
  */
 function generateRandomEmail(): string {
-  const firstNames = ['john', 'jane', 'bob', 'alice', 'charlie', 'diana', 'edward', 'fiona', 'george', 'helen', 'ivan', 'julia', 'kevin', 'laura', 'mike', 'nancy', 'oscar', 'penny', 'quinn', 'rachel'];
-  const lastNames = ['smith', 'johnson', 'williams', 'brown', 'jones', 'garcia', 'miller', 'davis', 'rodriguez', 'martinez', 'hernandez', 'lopez', 'gonzalez', 'wilson', 'anderson', 'thomas', 'taylor', 'moore', 'jackson', 'martin'];
-  const domains = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'company.com', 'startup.io', 'tech.org', 'business.net', 'example.com', 'test.co'];
-  
+  const firstNames = [
+    'john',
+    'jane',
+    'bob',
+    'alice',
+    'charlie',
+    'diana',
+    'edward',
+    'fiona',
+    'george',
+    'helen',
+    'ivan',
+    'julia',
+    'kevin',
+    'laura',
+    'mike',
+    'nancy',
+    'oscar',
+    'penny',
+    'quinn',
+    'rachel',
+  ];
+  const lastNames = [
+    'smith',
+    'johnson',
+    'williams',
+    'brown',
+    'jones',
+    'garcia',
+    'miller',
+    'davis',
+    'rodriguez',
+    'martinez',
+    'hernandez',
+    'lopez',
+    'gonzalez',
+    'wilson',
+    'anderson',
+    'thomas',
+    'taylor',
+    'moore',
+    'jackson',
+    'martin',
+  ];
+  const domains = [
+    'gmail.com',
+    'yahoo.com',
+    'hotmail.com',
+    'outlook.com',
+    'company.com',
+    'startup.io',
+    'tech.org',
+    'business.net',
+    'example.com',
+    'test.co',
+  ];
+
   const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
   const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
   const domain = domains[Math.floor(Math.random() * domains.length)];
-  
+
   return `${firstName}.${lastName}@${domain}`;
 }
 
@@ -31,9 +84,9 @@ function generateRandomUserAgent(): string {
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Mozilla/5.0 (iPhone; CPU iPhone OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
     'Mozilla/5.0 (iPad; CPU OS 17_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Mobile/15E148 Safari/604.1',
-    'Mozilla/5.0 (Android 14; Mobile; rv:121.0) Gecko/121.0 Firefox/121.0'
+    'Mozilla/5.0 (Android 14; Mobile; rv:121.0) Gecko/121.0 Firefox/121.0',
   ];
-  
+
   return userAgents[Math.floor(Math.random() * userAgents.length)];
 }
 
@@ -54,9 +107,9 @@ function generateRandomReferrer(): string {
     'https://medium.com/@soku-ai',
     'direct',
     'https://newsletter.marketing.com',
-    'https://blog.startup.com/ai-tools'
+    'https://blog.startup.com/ai-tools',
   ];
-  
+
   return referrers[Math.floor(Math.random() * referrers.length)];
 }
 
@@ -65,9 +118,10 @@ function generateRandomReferrer(): string {
  */
 function generateRandomTimestamp(): Date {
   const now = new Date();
-  const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
-  const randomTime = thirtyDaysAgo.getTime() + Math.random() * (now.getTime() - thirtyDaysAgo.getTime());
-  
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const randomTime =
+    thirtyDaysAgo.getTime() + Math.random() * (now.getTime() - thirtyDaysAgo.getTime());
+
   return new Date(randomTime);
 }
 
@@ -76,49 +130,52 @@ function generateRandomTimestamp(): Date {
  */
 async function generateMockData(count: number = 50) {
   console.log(`Generating ${count} mock waitlist entries...`);
-  
+
   const variants: ('A' | 'B')[] = ['A', 'B'];
   let successCount = 0;
   let skipCount = 0;
-  
+
   for (let i = 0; i < count; i++) {
     try {
       const email = generateRandomEmail();
       const variant = variants[Math.floor(Math.random() * variants.length)];
       const userAgent = generateRandomUserAgent();
       const referrer = generateRandomReferrer();
-      
+
       // Create entry with custom timestamp
       const entry = await generateWaitlistEntry(email, variant, userAgent, referrer);
-      
+
       // Override timestamp with random one
       entry.timestamp = generateRandomTimestamp();
-      
+
       await storage.storeWaitlistEntry(entry);
       successCount++;
-      
+
       if (i % 10 === 0) {
         console.log(`Progress: ${i + 1}/${count} entries processed...`);
       }
     } catch (error) {
       skipCount++;
-      // Skip duplicate emails
+      // Log the error and skip duplicate emails
+      console.error(
+        `Error adding entry: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
-  
+
   console.log(`\n✅ Mock data generation completed!`);
   console.log(`📊 Successfully added: ${successCount} entries`);
   console.log(`⏭️  Skipped duplicates: ${skipCount} entries`);
-  
+
   // Show summary statistics
   const allEntries = await storage.getWaitlistEntries();
   const variantA = allEntries.filter(e => e.variant === 'A').length;
   const variantB = allEntries.filter(e => e.variant === 'B').length;
-  
+
   console.log(`\n📈 Current database statistics:`);
   console.log(`   Total entries: ${allEntries.length}`);
-  console.log(`   Variant A: ${variantA} (${Math.round(variantA / allEntries.length * 100)}%)`);
-  console.log(`   Variant B: ${variantB} (${Math.round(variantB / allEntries.length * 100)}%)`);
+  console.log(`   Variant A: ${variantA} (${Math.round((variantA / allEntries.length) * 100)}%)`);
+  console.log(`   Variant B: ${variantB} (${Math.round((variantB / allEntries.length) * 100)}%)`);
 }
 
 /**
@@ -136,7 +193,7 @@ async function clearAllData() {
 async function main() {
   const args = process.argv.slice(2);
   const command = args[0];
-  
+
   switch (command) {
     case 'clear':
       await clearAllData();
@@ -167,4 +224,10 @@ if (require.main === module) {
   main().catch(console.error);
 }
 
-export { generateMockData, clearAllData, generateRandomEmail, generateRandomUserAgent, generateRandomReferrer };
+export {
+  generateMockData,
+  clearAllData,
+  generateRandomEmail,
+  generateRandomUserAgent,
+  generateRandomReferrer,
+};

@@ -11,12 +11,12 @@ export function isValidEmail(email: string): boolean {
  */
 export function formatDate(date: Date | string): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date;
-  
+
   // Check if the date is valid
   if (!dateObj || isNaN(dateObj.getTime())) {
     return 'Invalid Date';
   }
-  
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'long',

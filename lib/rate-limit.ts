@@ -22,7 +22,7 @@ const RATE_LIMITS = {
 // Environment configuration
 function getEnvironmentConfig() {
   return {
-    RATE_LIMIT_ENABLED: process.env.NODE_ENV === 'production'
+    RATE_LIMIT_ENABLED: process.env.NODE_ENV === 'production',
   };
 }
 
@@ -41,7 +41,7 @@ class RateLimiter {
     this.maxRequests = maxRequests;
     this.windowMs = windowMs;
     this.enabled = getEnvironmentConfig().RATE_LIMIT_ENABLED;
-    
+
     // Clean up expired entries every 5 minutes
     setInterval(() => this.cleanup(), 5 * 60 * 1000);
   }
@@ -54,7 +54,7 @@ class RateLimiter {
     if (!this.enabled) {
       return false;
     }
-    
+
     const now = Date.now();
     const entry = this.requests.get(identifier);
 
@@ -130,11 +130,11 @@ export function getClientIP(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for');
   const realIP = request.headers.get('x-real-ip');
   const cfConnectingIP = request.headers.get('cf-connecting-ip');
-  
+
   if (cfConnectingIP) return cfConnectingIP;
   if (realIP) return realIP;
   if (forwarded) return forwarded.split(',')[0].trim();
-  
+
   // Fallback to a default identifier for development
   return 'unknown';
 }
@@ -148,11 +148,11 @@ export function withRateLimit(
 ) {
   return async (request: Request): Promise<Response> => {
     const clientIP = getClientIP(request);
-    
+
     if (rateLimiter.isRateLimited(clientIP)) {
       const resetTime = rateLimiter.getResetTime(clientIP);
       const retryAfter = Math.ceil((resetTime - Date.now()) / 1000);
-      
+
       return new Response(
         JSON.stringify({
           error: 'Too many requests. Please try again later.',
@@ -170,25 +170,28 @@ export function withRateLimit(
         }
       );
     }
-    
+
     const response = await handler(request);
-    
+
     // Add rate limit headers to successful responses
     const remaining = rateLimiter.getRemainingRequests(clientIP);
     const resetTime = rateLimiter.getResetTime(clientIP);
-    
+
     response.headers.set('X-RateLimit-Limit', rateLimiter['maxRequests'].toString());
     response.headers.set('X-RateLimit-Remaining', remaining.toString());
     response.headers.set('X-RateLimit-Reset', resetTime.toString());
-    
+
     return response;
   };
 }
 
 // Cleanup expired entries every 5 minutes
 if (typeof window === 'undefined') {
-  setInterval(() => {
-    waitlistRateLimiter.cleanup();
-    analyticsRateLimiter.cleanup();
-  }, 5 * 60 * 1000);
+  setInterval(
+    () => {
+      waitlistRateLimiter.cleanup();
+      analyticsRateLimiter.cleanup();
+    },
+    5 * 60 * 1000
+  );
 }

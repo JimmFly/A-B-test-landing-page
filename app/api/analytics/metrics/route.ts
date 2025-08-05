@@ -4,17 +4,24 @@ import { storage } from '@/lib/storage';
 /**
  * Handle GET request to retrieve conversion metrics
  */
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const metrics = await storage.getConversionMetrics();
+    const { searchParams } = new URL(request.url);
+    // Check if test sessions should be included
+    const includeTestSessions = searchParams.get('include_test_sessions') === 'true';
+
+    const metrics = await storage.getConversionMetrics(includeTestSessions);
 
     // Add additional statistics
-    const uniqueSessionsA = await storage.getUniqueSessionsCount('A');
-    const uniqueSessionsB = await storage.getUniqueSessionsCount('B');
-    const totalUniqueSessions = await storage.getUniqueSessionsCount();
+    const uniqueSessionsA = await storage.getUniqueSessionsCount('A', includeTestSessions);
+    const uniqueSessionsB = await storage.getUniqueSessionsCount('B', includeTestSessions);
+    const totalUniqueSessions = await storage.getUniqueSessionsCount(
+      undefined,
+      includeTestSessions
+    );
 
-    const allEvents = await storage.getEvents();
-    const waitlistEntries = await storage.getWaitlistEntries();
+    const allEvents = await storage.getEvents(includeTestSessions);
+    const waitlistEntries = await storage.getWaitlistEntries(includeTestSessions);
 
     const response = {
       metrics,

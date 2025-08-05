@@ -59,7 +59,8 @@ function WaitlistForm({ variant, onSubmit, isLoading = false }: WaitlistFormProp
         setEmail(''); // Clear form on success
       } catch (err) {
         // Display the specific error message from the API or a friendly fallback
-        const errorMessage = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+        const errorMessage =
+          err instanceof Error ? err.message : 'Something went wrong. Please try again.';
         setError(errorMessage);
       } finally {
         setIsSubmitting(false);

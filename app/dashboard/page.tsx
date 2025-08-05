@@ -32,17 +32,17 @@ export default function DashboardPage() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const params = new URLSearchParams();
       if (selectedVariant !== 'all') {
         params.append('variant', selectedVariant);
       }
-      
+
       const response = await fetch(`/api/admin/waitlist?${params}`);
       if (!response.ok) {
         throw new Error('Failed to fetch waitlist data');
       }
-      
+
       const result = await response.json();
       setData(result);
     } catch (err) {
@@ -58,17 +58,17 @@ export default function DashboardPage() {
   const exportCSV = async () => {
     try {
       setExporting(true);
-      
+
       const params = new URLSearchParams({ format: 'csv' });
       if (selectedVariant !== 'all') {
         params.append('variant', selectedVariant);
       }
-      
+
       const response = await fetch(`/api/admin/waitlist?${params}`);
       if (!response.ok) {
         throw new Error('Failed to export data');
       }
-      
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -160,7 +160,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <div className="h-8 w-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -172,7 +172,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <div className="h-8 w-8 bg-purple-100 rounded-full flex items-center justify-center">
@@ -184,7 +184,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-white p-6 rounded-lg shadow-md">
             <div className="flex items-center">
               <Filter className="h-8 w-8 text-gray-600" />
@@ -206,7 +206,7 @@ export default function DashboardPage() {
               <select
                 id="variant-filter"
                 value={selectedVariant}
-                onChange={(e) => setSelectedVariant(e.target.value as Variant | 'all')}
+                onChange={e => setSelectedVariant(e.target.value as Variant | 'all')}
                 className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="all">All Variants</option>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                 <option value="B">Variant B</option>
               </select>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <button
                 onClick={fetchData}
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 <span>Refresh</span>
               </button>
-              
+
               <button
                 onClick={exportCSV}
                 disabled={exporting || !data?.entries.length}
@@ -247,7 +247,7 @@ export default function DashboardPage() {
               Last updated: {data?.lastUpdated ? formatTimestamp(data.lastUpdated) : 'Never'}
             </p>
           </div>
-          
+
           {data?.entries.length ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -271,17 +271,19 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {data.entries.map((entry) => (
+                  {data.entries.map(entry => (
                     <tr key={entry.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {entry.email}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          entry.variant === 'A' 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-purple-100 text-purple-800'
-                        }`}>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            entry.variant === 'A'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-purple-100 text-purple-800'
+                          }`}
+                        >
                           Variant {entry.variant}
                         </span>
                       </td>
@@ -304,10 +306,9 @@ export default function DashboardPage() {
               <Users className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">No entries found</h3>
               <p className="mt-1 text-sm text-gray-500">
-                {selectedVariant === 'all' 
-                  ? 'No waitlist entries have been created yet.' 
-                  : `No entries found for variant ${selectedVariant}.`
-                }
+                {selectedVariant === 'all'
+                  ? 'No waitlist entries have been created yet.'
+                  : `No entries found for variant ${selectedVariant}.`}
               </p>
             </div>
           )}

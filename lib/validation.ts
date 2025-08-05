@@ -9,19 +9,17 @@ export function sanitizeString(input: string): string {
   if (typeof input !== 'string') {
     return '';
   }
-  
-  return input
-    .trim()
-    .replace(/[<>"'&]/g, (match) => {
-      const entities: Record<string, string> = {
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#x27;',
-        '&': '&amp;',
-      };
-      return entities[match] || match;
-    });
+
+  return input.trim().replace(/[<>"'&]/g, match => {
+    const entities: Record<string, string> = {
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;',
+      '&': '&amp;',
+    };
+    return entities[match] || match;
+  });
 }
 
 /**
@@ -33,7 +31,7 @@ export function validateEmail(email: string): { isValid: boolean; error?: string
   }
 
   const sanitizedEmail = sanitizeString(email);
-  
+
   // Check length limits
   if (sanitizedEmail.length > 254) {
     return { isValid: false, error: 'Email address is too long' };
@@ -44,8 +42,9 @@ export function validateEmail(email: string): { isValid: boolean; error?: string
   }
 
   // Enhanced email regex
-  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
-  
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+
   if (!emailRegex.test(sanitizedEmail)) {
     return { isValid: false, error: 'Please enter a valid email address' };
   }
@@ -76,7 +75,7 @@ export function validateVariant(variant: unknown): { isValid: boolean; error?: s
   }
 
   const sanitizedVariant = sanitizeString(variant);
-  
+
   if (sanitizedVariant !== 'A' && sanitizedVariant !== 'B') {
     return { isValid: false, error: 'Invalid variant. Must be A or B' };
   }
@@ -93,7 +92,7 @@ export function validateUserAgent(userAgent: unknown): { isValid: boolean; sanit
   }
 
   const sanitized = sanitizeString(userAgent);
-  
+
   // Limit length to prevent abuse
   if (sanitized.length > 500) {
     return { isValid: true, sanitized: sanitized.substring(0, 500) };
@@ -111,7 +110,7 @@ export function validateReferrer(referrer: unknown): { isValid: boolean; sanitiz
   }
 
   const sanitized = sanitizeString(referrer);
-  
+
   // Limit length to prevent abuse
   if (sanitized.length > 2048) {
     return { isValid: true, sanitized: sanitized.substring(0, 2048) };
@@ -143,16 +142,19 @@ export function validatePayloadSize(payload: unknown, maxSizeKB: number = 10): b
 /**
  * Rate limiting validation
  */
-export function validateRateLimit(headers: Headers): { isRateLimited: boolean; retryAfter?: number } {
+export function validateRateLimit(headers: Headers): {
+  isRateLimited: boolean;
+  retryAfter?: number;
+} {
   const rateLimitRemaining = headers.get('X-RateLimit-Remaining');
   const retryAfter = headers.get('Retry-After');
-  
+
   if (rateLimitRemaining === '0' || retryAfter) {
     return {
       isRateLimited: true,
       retryAfter: retryAfter ? parseInt(retryAfter, 10) : undefined,
     };
   }
-  
+
   return { isRateLimited: false };
 }
