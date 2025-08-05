@@ -26,7 +26,8 @@ A modern, high-performance landing page system built for Soku AI - the one-stop 
 - **Package Manager**: Yarn 4 (Berry) with PnP
 - **Icons**: Lucide React
 - **State Management**: React Hooks
-- **Testing**: Jest with Testing Library
+- **Testing**: Jest with Testing Library and comprehensive A/B testing suite
+- **A/B Testing**: Cookie-based session management with variant assignment
 
 ## 🚀 Quick Start
 
@@ -64,8 +65,9 @@ yarn type-check       # Run TypeScript type checking
 yarn check-all        # Run all checks (lint + format + type-check)
 
 # Testing
-yarn test             # Run Jest tests
+yarn test             # Run Jest tests (unit + integration)
 yarn test:watch       # Run tests in watch mode
+yarn test --coverage  # Run tests with coverage report
 ```
 
 ## 📦 Package Management
@@ -128,6 +130,14 @@ The project features a comprehensive A/B testing system with two distinct landin
 - **🎯 Performance Comparison**: Side-by-side variant performance analysis
 - **📱 Device Analytics**: Desktop vs. mobile conversion insights
 
+### A/B Testing Implementation
+
+- **🍪 Cookie-based Sessions**: Persistent user variant assignment using `js-cookie`
+- **🎲 Configurable Traffic Split**: Adjustable percentage allocation between variants
+- **🔄 Session Management**: Automatic session ID generation and variant persistence
+- **🧪 Comprehensive Testing**: 27 test cases covering unit and integration scenarios
+- **📊 100% Test Coverage**: Complete coverage of A/B testing logic and edge cases
+
 ## 🏗️ Project Structure
 
 ```
@@ -143,6 +153,9 @@ The project features a comprehensive A/B testing system with two distinct landin
 │   ├── globals.css       # Global styles and Tailwind imports
 │   ├── layout.tsx        # Root layout component
 │   └── page.tsx          # Home page (redirects to variants)
+├── __tests__/            # 🧪 Test suites
+│   ├── ab-testing.test.ts           # Unit tests for A/B testing logic
+│   └── ab-testing.integration.test.ts # Integration tests for complete user flows
 ├── components/           # 🧩 Reusable React components
 │   ├── layout/          # Layout-specific components
 │   │   ├── CTASection.tsx
@@ -154,10 +167,15 @@ The project features a comprehensive A/B testing system with two distinct landin
 ├── hooks/               # 🎣 Custom React hooks
 │   └── useLandingPage.ts # Landing page logic and analytics
 ├── lib/                 # 📚 Utility libraries and configurations
+│   ├── ab-testing.ts    # A/B testing core logic and session management
+│   ├── analytics.ts     # Analytics tracking utilities
+│   └── ...              # Other utility modules
 ├── types/               # 📝 TypeScript type definitions
 ├── utils/               # 🛠️ Helper functions and utilities
 ├── .yarn/               # 📦 Yarn 4 cache and configuration
 ├── .yarnrc.yml         # Yarn configuration
+├── jest.config.js      # Jest testing configuration
+├── jest.setup.js       # Jest setup and global mocks
 ├── oxlintrc.json       # oxlint configuration
 ├── tailwind.config.js  # Tailwind CSS configuration
 └── yarn.lock           # Dependency lock file
@@ -171,6 +189,16 @@ The project features a comprehensive A/B testing system with two distinct landin
 - **pnpMode**: `loose` - Better compatibility with legacy packages
 - **enableGlobalCache**: `true` - Share cache across projects
 - **packageManager**: Automatically managed via package.json
+
+### Jest Configuration (`jest.config.js`)
+
+Comprehensive testing setup for A/B testing and component testing:
+
+- **TypeScript support** with SWC transformation
+- **Module path mapping** for clean imports
+- **Coverage reporting** with detailed metrics
+- **Mock setup** for browser APIs and external dependencies
+- **Test environment** configured for DOM testing
 
 ### oxlint Configuration (`oxlintrc.json`)
 
@@ -237,10 +265,11 @@ This project is optimized for deployment on:
 1. **Setup**: `yarn install`
 2. **Branch**: Create a feature branch from `main`
 3. **Develop**: Make your changes with `yarn dev`
-4. **Quality**: Run `yarn check-all` before committing
-5. **Test**: Ensure all tests pass with `yarn test`
-6. **Build**: Verify production build with `yarn build`
-7. **PR**: Submit a pull request with clear description
+4. **Test**: Write and run tests with `yarn test`
+5. **Quality**: Run `yarn check-all` before committing
+6. **Coverage**: Verify test coverage with `yarn test --coverage`
+7. **Build**: Verify production build with `yarn build`
+8. **PR**: Submit a pull request with clear description
 
 ### Code Standards
 
