@@ -4,6 +4,8 @@
 
 A modern, high-performance landing page system built for Soku AI - the one-stop automated advertising agent that automates your entire marketing team. Features comprehensive A/B testing capabilities, real-time analytics, and conversion tracking.
 
+> **Note**: This project has been simplified by removing middleware and security configurations for easier setup and maintenance.
+
 ## ✨ Features
 
 - 🎯 **Dual Landing Page Variants** - Professional vs. Urgency-driven approaches
