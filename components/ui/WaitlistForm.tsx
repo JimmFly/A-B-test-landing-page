@@ -44,12 +44,12 @@ function WaitlistForm({ variant, onSubmit, isLoading = false }: WaitlistFormProp
 
       // Validate email
       if (!email.trim()) {
-        setError('Email is required');
+        setError('Please enter your email address to join the waitlist.');
         return;
       }
 
       if (!isValidEmail(email)) {
-        setError('Please enter a valid email address');
+        setError('Please enter a valid email address (e.g., name@example.com).');
         return;
       }
 
@@ -58,7 +58,9 @@ function WaitlistForm({ variant, onSubmit, isLoading = false }: WaitlistFormProp
         await onSubmit(email);
         setEmail(''); // Clear form on success
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+        // Display the specific error message from the API or a friendly fallback
+        const errorMessage = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+        setError(errorMessage);
       } finally {
         setIsSubmitting(false);
       }

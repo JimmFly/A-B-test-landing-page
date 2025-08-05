@@ -103,10 +103,21 @@ export async function submitWaitlistEntry(email: string, variant: Variant): Prom
   });
 
   if (!response.ok) {
-    throw new Error('Failed to submit waitlist entry');
+    let errorMessage = 'Unable to join waitlist. Please check your connection and try again.';
+    
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.error || 'Something went wrong. Please try again.';
+    } catch (parseError) {
+      // If we can't parse the error response, use the default message
+      console.warn('Failed to parse error response:', parseError);
+    }
+    
+    throw new Error(errorMessage);
   }
 
-  return response.json();
+  const result = await response.json();
+  return result.entry || result;
 }
 
 /**

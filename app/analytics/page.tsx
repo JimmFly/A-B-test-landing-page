@@ -68,10 +68,6 @@ export default function AnalyticsPage() {
     []
   );
 
-  if (loading && !metrics) {
-    return loadingComponent;
-  }
-
   // Memoize error component
   const errorComponent = useMemo(
     () => (
@@ -86,10 +82,6 @@ export default function AnalyticsPage() {
     ),
     [error, fetchMetrics]
   );
-
-  if (error) {
-    return errorComponent;
-  }
 
   // Memoize calculated values
   const { metricsData, summary, winningVariant, conversionDiff } = useMemo(() => {
@@ -130,6 +122,15 @@ export default function AnalyticsPage() {
     }),
     []
   );
+
+  // Early returns after all hooks
+  if (loading && !metrics) {
+    return loadingComponent;
+  }
+
+  if (error) {
+    return errorComponent;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

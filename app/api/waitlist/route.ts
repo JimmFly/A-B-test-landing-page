@@ -11,17 +11,23 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!email || !variant) {
-      return NextResponse.json({ error: 'Email and variant are required' }, { status: 400 });
+      return NextResponse.json({ 
+        error: 'Missing required information. Please provide your email address.' 
+      }, { status: 400 });
     }
 
     // Validate email format
     if (!isValidEmail(email)) {
-      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
+      return NextResponse.json({ 
+        error: 'Please enter a valid email address (e.g., name@example.com).' 
+      }, { status: 400 });
     }
 
     // Validate variant
     if (variant !== 'A' && variant !== 'B') {
-      return NextResponse.json({ error: 'Invalid variant. Must be A or B' }, { status: 400 });
+      return NextResponse.json({ 
+        error: 'Something went wrong. Please refresh the page and try again.' 
+      }, { status: 400 });
     }
 
     // Generate waitlist entry
@@ -48,12 +54,14 @@ export async function POST(request: NextRequest) {
     // Handle duplicate email error
     if (error instanceof Error && error.message === 'Email already registered') {
       return NextResponse.json(
-        { error: 'This email is already registered for the waitlist' },
+        { error: 'Good news! You\'re already on our waitlist. We\'ll notify you as soon as we launch!' },
         { status: 409 }
       );
     }
 
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Oops! Something went wrong on our end. Please try again in a moment.' 
+    }, { status: 500 });
   }
 }
 
