@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+*.tsbuildinfo
 
 # Yarn 4 PnP
 .pnp.*
