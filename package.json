@@ -16,6 +16,7 @@
     "test:watch": "jest --watch",
     "check-all": "yarn typecheck && yarn lint && yarn format:check",
     "pre-commit-check": "yarn typecheck && yarn lint",
+    "mock-data": "npx tsx scripts/generate-mock-data.ts",
     "prepare": "husky"
   },
   "dependencies": {
