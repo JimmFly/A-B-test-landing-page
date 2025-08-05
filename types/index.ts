@@ -26,6 +26,7 @@ export interface AnalyticsEvent {
   timestamp: Date;
   sessionId: string;
   userAgent?: string;
+  referrer?: string;
   metadata?: Record<string, unknown>;
 }
 

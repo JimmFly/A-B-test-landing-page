@@ -69,20 +69,15 @@ export function useLandingPage({ variant }: UseLandingPageProps): UseLandingPage
         trackSignupAttempt(variant, sessionId, email);
       }
 
-      try {
-        await submitWaitlistEntry(email, variant);
+      await submitWaitlistEntry(email, variant);
 
-        if (sessionId) {
-          trackSignupSuccess(variant, sessionId, email);
-        }
-
-        setUserEmail(email);
-        setShowWaitlistForm(false);
-        setShowSuccessMessage(true);
-      } catch (error) {
-        // Re-throw the error so the form component can handle it
-        throw error;
+      if (sessionId) {
+        trackSignupSuccess(variant, sessionId, email);
       }
+
+      setUserEmail(email);
+      setShowWaitlistForm(false);
+      setShowSuccessMessage(true);
     },
     [sessionId, variant]
   );

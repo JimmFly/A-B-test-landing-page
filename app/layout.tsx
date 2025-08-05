@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import { StructuredData, sokuAIStructuredData } from '@/components/StructuredData';
+import { PrivacyAnalytics } from '@/components/Analytics';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -81,31 +83,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Viewport meta tag for responsive design */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
 
-        {/* Structured Data for SEO */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'SoftwareApplication',
-              name: 'Soku AI',
-              description: 'AI-powered marketing automation platform for SMBs',
-              applicationCategory: 'BusinessApplication',
-              operatingSystem: 'Web',
-              offers: {
-                '@type': 'Offer',
-                price: '0',
-                priceCurrency: 'USD',
-                description: 'Free waitlist signup',
-              },
-              aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: '4.9',
-                ratingCount: '1000',
-              },
-            }),
-          }}
-        />
+        {/* Structured Data for SEO - Safe implementation */}
+        <StructuredData data={sokuAIStructuredData} />
       </head>
       <body className={`${inter.className} antialiased`}>
         {/* Skip to main content for accessibility */}
@@ -119,17 +98,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Main content */}
         <main id="main-content">{children}</main>
 
-        {/* Analytics Script Placeholder */}
-        {process.env.NODE_ENV === 'production' && (
-          <script
-            dangerouslySetInnerHTML={{
-              __html: `
-                // Google Analytics or other analytics scripts would go here
-                console.log('Analytics initialized');
-              `,
-            }}
-          />
-        )}
+        {/* Analytics - Safe implementation */}
+        <PrivacyAnalytics />
       </body>
     </html>
   );

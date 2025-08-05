@@ -1,13 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { storage, generateWaitlistEntry } from '@/lib/storage';
-import { isValidEmail } from '@/utils';
+import { waitlistRateLimiter, getClientIP } from '@/lib/rate-limit';
+import { validateEmail, validateVariant, validateUserAgent, validateReferrer, validatePayloadSize } from '@/lib/validation';
 
 /**
  * Handle POST request to add user to waitlist
  */
 export async function POST(request: NextRequest) {
   try {
-    const { email, variant, userAgent, referrer } = await request.json();
+    // Rate limiting check
+    const clientIP = getClientIP(request);
+    if (waitlistRateLimiter.isRateLimited(clientIP)) {
+      const resetTime = waitlistRateLimiter.getResetTime(clientIP);
+      const retryAfter = Math.ceil((resetTime - Date.now()) / 1000);
+      
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { 
+          status: 429,
+          headers: {
+            'Retry-After': retryAfter.toString(),
+            'X-RateLimit-Limit': '5',
+            'X-RateLimit-Remaining': waitlistRateLimiter.getRemainingRequests(clientIP).toString(),
+            'X-RateLimit-Reset': resetTime.toString(),
+          }
+        }
+      );
+    }
+
+    const requestBody = await request.json();
+    
+    // Validate payload size
+    if (!validatePayloadSize(requestBody, 5)) {
+      return NextResponse.json({ 
+        error: 'Request payload too large.' 
+      }, { status: 413 });
+    }
+
+    const { email, variant, userAgent, referrer } = requestBody;
 
     // Validate required fields
     if (!email || !variant) {
@@ -16,26 +46,39 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Validate email format
-    if (!isValidEmail(email)) {
+    // Enhanced email validation
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
       return NextResponse.json({ 
-        error: 'Please enter a valid email address (e.g., name@example.com).' 
+        error: emailValidation.error || 'Please enter a valid email address.' 
       }, { status: 400 });
     }
 
-    // Validate variant
-    if (variant !== 'A' && variant !== 'B') {
+    // Enhanced variant validation
+    const variantValidation = validateVariant(variant);
+    if (!variantValidation.isValid) {
       return NextResponse.json({ 
         error: 'Something went wrong. Please refresh the page and try again.' 
       }, { status: 400 });
     }
 
-    // Generate waitlist entry
-    const entry = await generateWaitlistEntry(email, variant, userAgent, referrer);
+    // Sanitize optional fields
+    const userAgentValidation = validateUserAgent(userAgent);
+    const referrerValidation = validateReferrer(referrer);
+    
+    const sanitizedUserAgent = userAgentValidation.sanitized;
+    const sanitizedReferrer = referrerValidation.sanitized;
+
+    // Generate waitlist entry with sanitized data
+    const entry = await generateWaitlistEntry(email, variant, sanitizedUserAgent, sanitizedReferrer);
 
     // Store the entry
     await storage.storeWaitlistEntry(entry);
 
+    // Add rate limit headers to response
+    const remaining = waitlistRateLimiter.getRemainingRequests(clientIP);
+    const resetTime = waitlistRateLimiter.getResetTime(clientIP);
+    
     return NextResponse.json(
       {
         success: true,
@@ -46,7 +89,14 @@ export async function POST(request: NextRequest) {
           timestamp: entry.timestamp,
         },
       },
-      { status: 201 }
+      { 
+        status: 201,
+        headers: {
+          'X-RateLimit-Limit': '5',
+          'X-RateLimit-Remaining': remaining.toString(),
+          'X-RateLimit-Reset': resetTime.toString(),
+        }
+      }
     );
   } catch (error) {
     console.error('Error adding to waitlist:', error);

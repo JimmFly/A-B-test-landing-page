@@ -1,4 +1,5 @@
 import Cookies from 'js-cookie';
+import { COOKIE_CONFIG } from './security-config';
 import { ABTestConfig } from '@/types';
 
 const AB_TEST_COOKIE = 'ab_test_variant';
@@ -18,7 +19,12 @@ export function getSessionId(): string {
   let sessionId = Cookies.get(SESSION_COOKIE);
   if (!sessionId) {
     sessionId = generateSessionId();
-    Cookies.set(SESSION_COOKIE, sessionId, { expires: 30 }); // 30 days
+    Cookies.set('session_id', sessionId, {
+      expires: COOKIE_CONFIG.MAX_AGE / (24 * 60 * 60), // Convert seconds to days
+      secure: COOKIE_CONFIG.SECURE,
+      sameSite: COOKIE_CONFIG.SAME_SITE,
+      path: COOKIE_CONFIG.PATH
+    });
   }
   return sessionId;
 }
@@ -38,7 +44,11 @@ export function assignVariant(
   // If A/B testing is disabled, default to variant A
   if (!config.enabled) {
     const variant = 'A';
-    Cookies.set(AB_TEST_COOKIE, variant, { expires: 30 });
+    Cookies.set(AB_TEST_COOKIE, variant, { 
+      expires: 30,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
     return variant;
   }
 
@@ -47,7 +57,12 @@ export function assignVariant(
   const variant = random < config.trafficSplit.A ? 'A' : 'B';
 
   // Store variant in cookie for consistency
-  Cookies.set(AB_TEST_COOKIE, variant, { expires: 30 }); // 30 days
+ Cookies.set('ab_test_variant', variant, {
+      expires: COOKIE_CONFIG.MAX_AGE / (24 * 60 * 60), // Convert seconds to days
+      secure: COOKIE_CONFIG.SECURE,
+      sameSite: COOKIE_CONFIG.SAME_SITE,
+      path: COOKIE_CONFIG.PATH
+    });
 
   return variant;
 }

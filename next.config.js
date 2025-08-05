@@ -1,8 +1,9 @@
+const { generateCSPHeader, SECURITY_HEADERS } = require('./lib/security-config');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost'],
-    formats: ['image/webp', 'image/avif'],
+    domains: ['images.unsplash.com', 'via.placeholder.com'],
   },
   compress: true,
   poweredByHeader: false,
@@ -14,15 +15,31 @@ const nextConfig = {
         headers: [
           {
             key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            value: SECURITY_HEADERS['X-Content-Type-Options'],
           },
           {
             key: 'X-Frame-Options',
-            value: 'DENY',
+            value: SECURITY_HEADERS['X-Frame-Options'],
           },
           {
             key: 'X-XSS-Protection',
-            value: '1; mode=block',
+            value: SECURITY_HEADERS['X-XSS-Protection'],
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: generateCSPHeader(),
+          },
+          {
+            key: 'Referrer-Policy',
+            value: SECURITY_HEADERS['Referrer-Policy'],
+          },
+          {
+            key: 'Permissions-Policy',
+            value: SECURITY_HEADERS['Permissions-Policy'],
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: SECURITY_HEADERS['Strict-Transport-Security'],
           },
         ],
       },
