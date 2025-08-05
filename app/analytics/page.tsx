@@ -13,6 +13,7 @@ export default function AnalyticsPage() {
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   /**
    * Fetch analytics data
@@ -22,6 +23,7 @@ export default function AnalyticsPage() {
       setLoading(true);
       const data = await getConversionMetrics();
       setMetrics(data);
+      setLastUpdated(new Date());
       setError(null);
     } catch (err) {
       setError('Failed to load analytics data');
@@ -50,10 +52,24 @@ export default function AnalyticsPage() {
   useEffect(() => {
     fetchMetrics();
 
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchMetrics, 30000);
+    // Auto-refresh every 5 seconds for real-time updates
+    const interval = setInterval(fetchMetrics, 5000);
     return () => clearInterval(interval);
-  }, [fetchMetrics]);
+  }, []);
+
+  // Listen for storage events to update data when new entries are added
+  useEffect(() => {
+    const handleStorageChange = () => {
+      fetchMetrics();
+    };
+
+    // Listen for custom events from waitlist submissions
+    window.addEventListener('waitlist-updated', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('waitlist-updated', handleStorageChange);
+    };
+  }, []);
 
   // Memoize loading component
   const loadingComponent = useMemo(
@@ -140,13 +156,30 @@ export default function AnalyticsPage() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">A/B Test Analytics</h1>
-              <p className="text-gray-600 mt-1">
-                Real-time performance metrics for landing page variants
-              </p>
+              <div className="flex items-center gap-4 mt-1">
+                <p className="text-gray-600">
+                  Real-time performance metrics for landing page variants
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-gray-500">
+                    Auto-refresh: 5s
+                    {lastUpdated && (
+                       <span className="ml-2">
+                         • Last updated: {formatDate(lastUpdated)}
+                       </span>
+                     )}
+                  </span>
+                </div>
+              </div>
             </div>
             <div className="flex space-x-4">
-              <button onClick={fetchMetrics} disabled={loading} className="btn-outline">
-                {loading ? 'Refreshing...' : '🔄 Refresh'}
+              <button 
+                onClick={fetchMetrics} 
+                disabled={loading} 
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Refreshing...' : '🔄 Refresh Data'}
               </button>
               <button
                 onClick={clearData}

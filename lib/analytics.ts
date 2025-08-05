@@ -19,6 +19,11 @@ export async function trackEvent(event: Omit<AnalyticsEvent, 'id' | 'timestamp'>
       },
       body: JSON.stringify(eventData),
     });
+    
+    // Trigger custom event to notify analytics dashboard of new event
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('waitlist-updated'));
+    }
   } catch (error) {
     console.error('Failed to track event:', error);
   }
@@ -117,6 +122,12 @@ export async function submitWaitlistEntry(email: string, variant: Variant): Prom
   }
 
   const result = await response.json();
+  
+  // Trigger custom event to notify analytics dashboard of new entry
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('waitlist-updated'));
+  }
+  
   return result.entry || result;
 }
 

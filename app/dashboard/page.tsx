@@ -96,6 +96,18 @@ export default function DashboardPage() {
     fetchData();
   }, [selectedVariant]);
 
+  // Listen for waitlist updates to refresh data automatically
+  useEffect(() => {
+    const handleWaitlistUpdate = () => {
+      fetchData();
+    };
+
+    window.addEventListener('waitlist-updated', handleWaitlistUpdate);
+    return () => {
+      window.removeEventListener('waitlist-updated', handleWaitlistUpdate);
+    };
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
