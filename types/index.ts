@@ -1,6 +1,6 @@
 // Common types
 export type Variant = 'A' | 'B';
-export type EventType = 'page_view' | 'signup_attempt' | 'signup_success' | 'button_click';
+export type EventType = 'page_view' | 'signup_attempt' | 'signup_success' | 'button_click' | 'ab_test_assignment';
 
 // User and analytics types
 export interface User {

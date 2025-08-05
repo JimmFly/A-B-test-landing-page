@@ -24,9 +24,9 @@ export default function HomePage() {
         trafficSplit: { A: 50, B: 50 }, // 50/50 split
       });
 
-      // Track the assignment
+      // Track the A/B test assignment (not a page view since user will be redirected)
       trackEvent({
-        type: 'page_view',
+        type: 'ab_test_assignment',
         variant,
         sessionId,
         userAgent: navigator.userAgent,

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { assignVariant, getSessionId } from '@/lib/ab-testing';
 import {
   trackPageView,
@@ -34,10 +34,11 @@ export function useLandingPage({ variant }: UseLandingPageProps): UseLandingPage
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [sessionId, setSessionId] = useState('');
+  const hasTrackedPageView = useRef(false);
 
   useEffect(() => {
     if (isClient()) {
-      // Initialize session and track page view
+      // Initialize session
       const session = getSessionId();
       setSessionId(session);
 
@@ -45,8 +46,11 @@ export function useLandingPage({ variant }: UseLandingPageProps): UseLandingPage
       const trafficSplit = variant === 'A' ? { A: 100, B: 0 } : { A: 0, B: 100 };
       assignVariant({ enabled: true, trafficSplit });
 
-      // Track page view
-      trackPageView(variant, session);
+      // Track page view only once to prevent duplicate counting
+      if (!hasTrackedPageView.current) {
+        trackPageView(variant, session);
+        hasTrackedPageView.current = true;
+      }
     }
   }, [variant]);
 
