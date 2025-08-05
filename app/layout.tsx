@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { StructuredData, sokuAIStructuredData } from '@/components/StructuredData';
 import { PrivacyAnalytics } from '@/components/Analytics';
+import ConditionalNavigation from '@/components/layout/ConditionalNavigation';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -95,6 +96,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to main content
         </a>
 
+        {/* Conditional Navigation */}
+        <ConditionalNavigation />
+        
         {/* Main content */}
         <main id="main-content">{children}</main>
 
